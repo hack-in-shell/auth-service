@@ -1,5 +1,7 @@
 package com.example.authservice.service;
 
+import com.example.authservice.common.exceptions.InvalidRequestDataException;
+import com.example.authservice.common.exceptions.RecordNotFoundException;
 import com.example.authservice.common.utils.SessionIdUtil;
 import com.example.authservice.data.entity.User;
 import com.example.authservice.data.repository.UserRepository;
@@ -41,9 +43,9 @@ public class LoginService extends BaseService {
         //TODO: if user is valid, create session
         Optional<User> user = userRepository.findByEmail(loginRequest.getEmail());
         if (user.isEmpty())
-            throw new RuntimeException("User Not Found");
+            throw new RecordNotFoundException("User does not exists");
         if (!passwordEncoder.matches(loginRequest.getPassword(), user.get().getPassword()))
-            throw new RuntimeException("Credentials do not match");
+            throw new InvalidRequestDataException("Credentials do not match");
         //TODO: create an ID token in redis to store user claims
         final String sessionId = SessionIdUtil.generateSessionId();
         final String idToken = createIDToken(sessionId);
